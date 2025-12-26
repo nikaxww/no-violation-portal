@@ -53,3 +53,41 @@ function createRegForm() {
         regButton
     }
 }
+
+function createAuthForm() {
+    const form = document.createElement('form')
+
+    const auth = document.createElement('h1')
+    const loginInput = document.createElement('input')
+    const passwordInput = document.createElement('input')
+
+    const authButton = document.createElement('button')
+
+    form.classList.add('form')
+    auth.classList.add('h1')
+    loginInput.classList.add('input')
+    passwordInput.classList.add('input')
+    authButton.classList.add('button')
+
+    loginInput.type = 'text'
+    passwordInput.type = 'password'
+
+    loginInput.placeholder = 'Введите логин*'
+    passwordInput.placeholder = 'Введите пароль*'
+    auth.textContent = 'Авторизация'
+
+    authButton.textContent = 'Войти'
+
+    form.append(auth)
+    form.append(loginInput)
+    form.append(passwordInput)
+    form.append(authButton)
+
+    return {
+        form,
+        auth,
+        loginInput,
+        passwordInput,
+        authButton
+    }
+}
