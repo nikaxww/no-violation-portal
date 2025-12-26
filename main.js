@@ -1,3 +1,6 @@
+let students = JSON.parse(localStorage.getItem('students')) || []
+let currentSt = JSON.parse(localStorage.getItem('currentSt')) || null
+
 function createRegForm() {
     const form = document.createElement('form')
 
@@ -91,3 +94,94 @@ function createAuthForm() {
         authButton
     }
 }
+
+function addStudentToArray(student) {
+    students.push(student)
+    localStorage.setItem('students', JSON.stringify(students))
+    console.log(students)
+}
+
+function createRegApp() {
+    const container = document.getElementById('app-students')
+
+    const regForm = createRegForm()
+    container.append(regForm.form)
+
+    const btnAuthLink = document.createElement('button')
+    btnAuthLink.classList.add('buttonAuthLink')
+    btnAuthLink.textContent = 'Уже есть аккаунт? Войти'
+    btnAuthLink.addEventListener('click', createAuthApp)
+    regForm.form.append(btnAuthLink)
+
+    regForm.regButton.addEventListener('click', (e) => {
+        e.preventDefault()
+
+        const surnameInput = regForm.surnameInput.value.trim()
+        const nameInput = regForm.nameInput.value.trim()
+        const loginInput = regForm.loginInput.value.trim()
+        const passwordInput = regForm.passwordInput.value.trim()
+
+        if (nameInput !== '' && surnameInput !== '' && loginInput !== '' && passwordInput !== '') {
+            if (passwordInput.length >= 6) {
+                const existingUser = students.find(s => s.loginInput === loginInput)
+                if (existingUser) {
+                    alert('Пользователь с таким логином уже существует!')
+                    return;
+                }
+                let student = {
+                    name: nameInput,
+                    surname: surnameInput,
+                    login: loginInput,
+                    password: passwordInput
+                }
+                addStudentToArray(student)
+                currentSt = student
+                localStorage.setItem('currentSt', JSON.stringify(student))
+                welcomeText(student.name, student.surname)
+            } else {
+                alert('Короткий пароль!')
+            }
+        } else {
+            alert('Заполните все поля!')
+        }
+    })
+}
+
+function createAuthApp() {
+    const container = document.getElementById('app-students')
+    container.innerHTML = ''
+
+    const authForm = createAuthForm()
+    container.append(authForm.form)
+
+    const btnRegLink = document.createElement('button')
+    btnRegLink.classList.add('buttonRegLink')
+    btnRegLink.textContent = 'Нет аккаунта? Зарегистрируйтесь'
+    btnRegLink.addEventListener('click', () => {
+        container.innerHTML = ''
+        createRegApp()
+    })
+    authForm.form.append(btnRegLink)
+
+    authForm.authButton.addEventListener('click', (e) => {
+        e.preventDefault()
+        const loginInput = authForm.loginInput.value.trim()
+        const passwordInput = authForm.passwordInput.value.trim()
+
+        if (loginInput === '' || passwordInput === '') {
+            alert('Заполните все поля!')
+            return
+        }
+        const user = students.find(s => s.login === loginInput && s.password === passwordInput)
+        if (user) {
+            currentSt = user
+            localStorage.setItem('currentSt', JSON.stringify(user))
+            welcomeText(user.name, user.surname)
+        } else {
+            alert('Пользователя с таким логином не существует!')
+            return
+        }
+    })
+}
+
+document.addEventListener('DOMContentLoaded', createRegApp)
