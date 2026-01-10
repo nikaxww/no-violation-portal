@@ -36,6 +36,7 @@ function createRegForm() {
     reg.textContent = 'Регистрация'
 
     regButton.textContent = 'Зарегестрироваться'
+    regButton.type = 'button'
 
     form.append(reg)
     form.append(fioInput)
@@ -80,6 +81,7 @@ function createAuthForm() {
     auth.textContent = 'Авторизация'
 
     authButton.textContent = 'Войти'
+    authButton.type = 'button' 
 
     form.append(auth)
     form.append(loginInput)
@@ -116,12 +118,13 @@ function createRegApp() {
     regForm.regButton.addEventListener('click', (e) => {
         e.preventDefault()
 
-        const surnameInput = regForm.surnameInput.value.trim()
-        const nameInput = regForm.nameInput.value.trim()
+        const fio = regForm.fioInput.value.trim()
+        const phone = regForm.phoneInput.value.trim()
+        const email = regForm.emailInput.value.trim()
         const loginInput = regForm.loginInput.value.trim()
         const passwordInput = regForm.passwordInput.value.trim()
 
-        if (nameInput !== '' && surnameInput !== '' && loginInput !== '' && passwordInput !== '') {
+        if (fio !== '' && phone !== '' && email !== '' && login !== '' && password !== '') {
             if (passwordInput.length >= 6) {
                 const existingUser = students.find(s => s.loginInput === loginInput)
                 if (existingUser) {
@@ -129,10 +132,11 @@ function createRegApp() {
                     return;
                 }
                 let student = {
-                    name: nameInput,
-                    surname: surnameInput,
-                    login: loginInput,
-                    password: passwordInput
+                    fio: fio,
+                    phone: phone,
+                    email: email,
+                    login: login,
+                    password: password
                 }
                 addStudentToArray(student)
                 currentSt = student
