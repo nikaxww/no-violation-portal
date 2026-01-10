@@ -1,5 +1,5 @@
-let students = JSON.parse(localStorage.getItem('students')) || []
-let currentSt = JSON.parse(localStorage.getItem('currentSt')) || null
+let peoples = JSON.parse(localStorage.getItem('peoples')) || []
+let currentPep = JSON.parse(localStorage.getItem('currentPep')) || null
 
 function createRegForm() {
     const form = document.createElement('form')
@@ -97,10 +97,10 @@ function createAuthForm() {
     }
 }
 
-function addStudentToArray(student) {
-    students.push(student)
-    localStorage.setItem('students', JSON.stringify(students))
-    console.log(students)
+function addPeopleToArray(people) {
+    peoples.push(people)
+    localStorage.setItem('peoples', JSON.stringify(peoples))
+    console.log(peoples)
 }
 
 function createRegApp() {
@@ -124,24 +124,23 @@ function createRegApp() {
         const loginInput = regForm.loginInput.value.trim()
         const passwordInput = regForm.passwordInput.value.trim()
 
-        if (fio !== '' && phone !== '' && email !== '' && login !== '' && password !== '') {
+        if (fio !== '' && phone !== '' && email !== '' && loginInput !== '' && passwordInput !== '') {
             if (passwordInput.length >= 6) {
-                const existingUser = students.find(s => s.loginInput === loginInput)
+                const existingUser = peoples.find(p => p.loginInput === loginInput)
                 if (existingUser) {
                     alert('Пользователь с таким логином уже существует!')
                     return;
                 }
-                let student = {
+                let people = {
                     fio: fio,
                     phone: phone,
                     email: email,
-                    login: login,
-                    password: password
+                    login: loginInput,
+                    password: passwordInput
                 }
-                addStudentToArray(student)
-                currentSt = student
-                localStorage.setItem('currentSt', JSON.stringify(student))
-                welcomeText(student.name, student.surname)
+                addPeopleToArray(people)
+                currentPep = people
+                localStorage.setItem('currentPep', JSON.stringify(people))
             } else {
                 alert('Короткий пароль!')
             }
@@ -176,11 +175,10 @@ function createAuthApp() {
             alert('Заполните все поля!')
             return
         }
-        const user = students.find(s => s.login === loginInput && s.password === passwordInput)
+        const user = peoples.find(p => p.login === loginInput && p.password === passwordInput)
         if (user) {
-            currentSt = user
-            localStorage.setItem('currentSt', JSON.stringify(user))
-            welcomeText(user.name, user.surname)
+            currentPep = user
+            localStorage.setItem('currentPep', JSON.stringify(user))
         } else {
             alert('Пользователя с таким логином не существует!')
             return
