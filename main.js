@@ -1,6 +1,14 @@
 let peoples = JSON.parse(localStorage.getItem('peoples')) || []
 let currentPep = JSON.parse(localStorage.getItem('currentPep')) || null
 
+let applications = JSON.parse(localStorage.getItem('applications')) || []
+
+function saveApplications() {
+    localStorage.setItem('applications', JSON.stringify(applications))
+}
+
+
+
 function createRegForm() {
     const form = document.createElement('form')
 
@@ -97,6 +105,70 @@ function createAuthForm() {
     }
 }
 
+function createApplicationsPage() {
+    const container = document.getElementById('app-students');
+    container.innerHTML = '';
+
+    const title = document.createElement('h1');
+    const backButton = document.createElement('button');
+    const newAppButton = document.createElement('button');
+    const appsList = document.createElement('div');
+
+    title.classList.add('h1');
+    backButton.classList.add('button');
+    newAppButton.classList.add('button');
+    appsList.classList.add('applications-list');
+
+    title.textContent = 'Мои заявления';
+    backButton.textContent = 'Назад';
+    newAppButton.textContent = 'Подать новое заявление';
+
+    container.append(title);
+    container.append(backButton);
+    container.append(newAppButton);
+    container.append(appsList);
+
+    setupApplicationsPage(backButton, newAppButton, appsList);
+}
+
+function createNewApplicationForm() {}
+
+function setupApplicationsPage(backButton, newAppButton, appsList) {
+
+    backButton.addEventListener('click', () => {
+        createAuthApp();
+    });
+    newAppButton.addEventListener('click', createNewApplicationForm);
+
+
+    const userApps = applications.filter(app => app.userId === currentPep.login);
+    appsList.innerHTML = ''; 
+
+    if (userApps.length === 0) {
+        const noApps = document.createElement('p');
+        noApps.textContent = 'У вас пока нет поданных заявлений.';
+        appsList.append(noApps);
+    } else {
+        userApps.forEach(app => {
+            const appItem = document.createElement('div');
+            const regNum = document.createElement('p');
+            const desc = document.createElement('p');
+            const status = document.createElement('p');
+
+            appItem.classList.add('application-item');
+
+            regNum.textContent = `Гос. номер: ${app.regNumber}`;
+            desc.textContent = `Описание: ${app.description}`;
+            status.textContent = `Статус: ${app.status || 'Новое'}`;
+
+            appItem.append(regNum);
+            appItem.append(desc);
+            appItem.append(status);
+            appsList.append(appItem);
+        });
+    }
+}
+
 function addPeopleToArray(people) {
     peoples.push(people)
     localStorage.setItem('peoples', JSON.stringify(peoples))
@@ -141,6 +213,7 @@ function createRegApp() {
                 addPeopleToArray(people)
                 currentPep = people
                 localStorage.setItem('currentPep', JSON.stringify(people))
+                createApplicationsPage(); 
             } else {
                 alert('Короткий пароль!')
             }
@@ -179,6 +252,7 @@ function createAuthApp() {
         if (user) {
             currentPep = user
             localStorage.setItem('currentPep', JSON.stringify(user))
+             createApplicationsPage()
         } else {
             alert('Пользователя с таким логином не существует!')
             return
