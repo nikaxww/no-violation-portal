@@ -84,3 +84,60 @@ body {
 .buttonRegLink:hover {
     color: #F57C00; 
 }
+
+.applications-list {
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto 0;
+    padding: 0;
+    list-style: none;
+}
+
+.application-item {
+    background-color: #FAFAFA;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    font-size: 24px;
+    color: #212121;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.application-item p {
+    margin: 8px 0;
+    line-height: 1.4;
+}
+
+.application-item p:first-child {
+    font-weight: bold;
+    color: #D32F2F;
+}
+
+.header-with-back {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;  
+}
+
+.header-with-back .h1 {
+    margin: 0 auto;
+    text-align: center;
+}
+
+.back-button {
+    background-color: transparent;
+    color: #D32F2F;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    width: auto;
+    max-width: none;
+    margin: 0px;
+}
+
+.back-button:hover {
+    background-color: transparent;
+    color: #C62828;
+}

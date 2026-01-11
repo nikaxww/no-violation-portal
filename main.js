@@ -109,29 +109,103 @@ function createApplicationsPage() {
     const container = document.getElementById('app-students');
     container.innerHTML = '';
 
+    const headerContainer = document.createElement('div'); 
     const title = document.createElement('h1');
     const backButton = document.createElement('button');
     const newAppButton = document.createElement('button');
     const appsList = document.createElement('div');
-
+    const buttonWrapper = document.createElement('div');
+    
+    buttonWrapper.style.textAlign = 'center';
+    headerContainer.classList.add('header-with-back');
     title.classList.add('h1');
-    backButton.classList.add('button');
+    backButton.classList.add('button', 'back-button');
     newAppButton.classList.add('button');
     appsList.classList.add('applications-list');
 
     title.textContent = 'Мои заявления';
-    backButton.textContent = 'Назад';
+    backButton.textContent = 'Выйти';
     newAppButton.textContent = 'Подать новое заявление';
 
-    container.append(title);
-    container.append(backButton);
-    container.append(newAppButton);
+    headerContainer.append(backButton);
+    headerContainer.append(title);
+    buttonWrapper.append(newAppButton);
+    container.append(headerContainer);
+    container.append(buttonWrapper);
     container.append(appsList);
 
     setupApplicationsPage(backButton, newAppButton, appsList);
 }
 
-function createNewApplicationForm() {}
+function createNewApplicationForm() {
+    const container = document.getElementById('app-students');
+    container.innerHTML = '';
+
+    const form = document.createElement('form');
+    const title = document.createElement('h1');
+    const regNumberInput = document.createElement('input');
+    const descriptionInput = document.createElement('textarea');
+    const submitButton = document.createElement('button');
+    const cancelButton = document.createElement('button');
+
+    form.classList.add('form');
+    title.classList.add('h1');
+    regNumberInput.classList.add('input');
+    descriptionInput.classList.add('input');
+    submitButton.classList.add('button');
+    cancelButton.classList.add('button');
+
+    title.textContent = 'Новое заявление';
+
+    regNumberInput.type = 'text';
+    regNumberInput.placeholder = 'Государственный регистрационный номер автомобиля*';
+
+    descriptionInput.placeholder = 'Описание нарушения*';
+    descriptionInput.rows = 4;
+
+    submitButton.type = 'button';
+    submitButton.textContent = 'Отправить заявление';
+
+    cancelButton.type = 'button';
+    cancelButton.textContent = 'Отмена';
+
+    form.append(title, regNumberInput, descriptionInput, submitButton, cancelButton);
+    container.append(form);
+
+    setupNewApplicationForm(submitButton, cancelButton, regNumberInput, descriptionInput);
+}
+
+function setupNewApplicationForm(submitButton, cancelButton, regNumberInput, descriptionInput) {
+
+    cancelButton.addEventListener('click', () => {
+        createApplicationsPage();
+    });
+
+    submitButton.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        const regNumber = regNumberInput.value.trim();
+        const description = descriptionInput.value.trim();
+
+        if (regNumber === '' || description === '') {
+            alert('Пожалуйста, заполните все поля!');
+            return;
+        }
+
+        const newApp = {
+            userId: currentPep.login,
+            regNumber: regNumber,
+            description: description,
+            status: 'Новое',
+            createdAt: new Date().toISOString()
+        };
+
+        applications.push(newApp);
+        saveApplications();
+        alert('Заявление успешно отправлено!');
+        createApplicationsPage();
+    });
+}
 
 function setupApplicationsPage(backButton, newAppButton, appsList) {
 
