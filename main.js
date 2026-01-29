@@ -3,10 +3,24 @@ let currentPep = JSON.parse(localStorage.getItem('currentPep')) || null
 
 let applications = JSON.parse(localStorage.getItem('applications')) || []
 
+
 function saveApplications() {
     localStorage.setItem('applications', JSON.stringify(applications))
 }
 
+
+if (peoples.length === 0) {
+    const adminUser = {
+        fio: "Админ",
+        phone: "1234567",
+        email: "admin@kk",
+        login: "copp",
+        password: "password",
+        role: "admin"
+    };
+    peoples.push(adminUser);
+    localStorage.setItem('peoples', JSON.stringify(peoples));
+}
 
 
 function createRegForm() {
@@ -32,7 +46,7 @@ function createRegForm() {
 
     fioInput.type = 'text'
     phoneInput.type = 'tel'
-    emailInput.type = 'email' 
+    emailInput.type = 'email'
     loginInput.type = 'text'
     passwordInput.type = 'password'
 
@@ -89,7 +103,7 @@ function createAuthForm() {
     auth.textContent = 'Авторизация'
 
     authButton.textContent = 'Войти'
-    authButton.type = 'button' 
+    authButton.type = 'button'
 
     form.append(auth)
     form.append(loginInput)
@@ -105,17 +119,46 @@ function createAuthForm() {
     }
 }
 
+function createApplicationsPageAdmin() {
+    const container = document.getElementById('app-students');
+    container.innerHTML = '';
+    const headerContainer = document.createElement('div');
+    const title = document.createElement('h1');
+    const backButton = document.createElement('button');
+    const appsList = document.createElement('div');
+
+    headerContainer.classList.add('header-with-back');
+    title.classList.add('h1');
+    backButton.classList.add('button', 'back-button');
+    appsList.classList.add('applications-list');
+
+    title.textContent = 'Все заявления';
+    backButton.textContent = 'Выйти';
+
+    headerContainer.append(backButton);
+    headerContainer.append(title);
+    container.append(headerContainer);
+    container.append(appsList);
+
+    backButton.addEventListener('click', () => {
+        currentPep = null;
+        localStorage.removeItem('currentPep');
+        createAuthApp();
+    });
+}
+
+
 function createApplicationsPage() {
     const container = document.getElementById('app-students');
     container.innerHTML = '';
 
-    const headerContainer = document.createElement('div'); 
+    const headerContainer = document.createElement('div');
     const title = document.createElement('h1');
     const backButton = document.createElement('button');
     const newAppButton = document.createElement('button');
     const appsList = document.createElement('div');
     const buttonWrapper = document.createElement('div');
-    
+
     buttonWrapper.style.textAlign = 'center';
     headerContainer.classList.add('header-with-back');
     title.classList.add('h1');
@@ -158,7 +201,7 @@ function createNewApplicationForm() {
     title.textContent = 'Новое заявление';
 
     regNumberInput.type = 'text';
-    regNumberInput.placeholder = 'Государственный регистрационный номер автомобиля*';
+    regNumberInput.placeholder = 'Гос. рег. номер автомобиля*';
 
     descriptionInput.placeholder = 'Описание нарушения*';
     descriptionInput.rows = 4;
@@ -210,34 +253,54 @@ function setupNewApplicationForm(submitButton, cancelButton, regNumberInput, des
 function setupApplicationsPage(backButton, newAppButton, appsList) {
 
     backButton.addEventListener('click', () => {
+        currentPep = null;
+        localStorage.removeItem('currentPep');
         createAuthApp();
     });
     newAppButton.addEventListener('click', createNewApplicationForm);
 
 
     const userApps = applications.filter(app => app.userId === currentPep.login);
-    appsList.innerHTML = ''; 
+    appsList.innerHTML = '';
 
     if (userApps.length === 0) {
         const noApps = document.createElement('p');
         noApps.textContent = 'У вас пока нет поданных заявлений.';
         appsList.append(noApps);
     } else {
+        const sortedApps = [...userApps].sort((a, b) =>
+            new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
         userApps.forEach(app => {
             const appItem = document.createElement('div');
             const regNum = document.createElement('p');
             const desc = document.createElement('p');
             const status = document.createElement('p');
+            const dateElem = document.createElement('p');
 
             appItem.classList.add('application-item');
 
             regNum.textContent = `Гос. номер: ${app.regNumber}`;
             desc.textContent = `Описание: ${app.description}`;
             status.textContent = `Статус: ${app.status || 'Новое'}`;
+            const date = new Date(app.createdAt);
+            const formattedDate = date.toLocaleDateString('ru-RU', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+            const formattedTime = date.toLocaleTimeString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            dateElem.textContent = `Дата подачи: ${formattedDate} ${formattedTime}`;
 
             appItem.append(regNum);
             appItem.append(desc);
             appItem.append(status);
+            appItem.append(dateElem);
             appsList.append(appItem);
         });
     }
@@ -272,7 +335,7 @@ function createRegApp() {
 
         if (fio !== '' && phone !== '' && email !== '' && loginInput !== '' && passwordInput !== '') {
             if (passwordInput.length >= 6) {
-                const existingUser = peoples.find(p => p.loginInput === loginInput)
+                const existingUser = peoples.find(p => p.login === loginInput)
                 if (existingUser) {
                     alert('Пользователь с таким логином уже существует!')
                     return;
@@ -282,12 +345,13 @@ function createRegApp() {
                     phone: phone,
                     email: email,
                     login: loginInput,
-                    password: passwordInput
+                    password: passwordInput,
+                    role: "user"
                 }
                 addPeopleToArray(people)
                 currentPep = people
                 localStorage.setItem('currentPep', JSON.stringify(people))
-                createApplicationsPage(); 
+                createApplicationsPage();
             } else {
                 alert('Короткий пароль!')
             }
@@ -322,16 +386,31 @@ function createAuthApp() {
             alert('Заполните все поля!')
             return
         }
-        const user = peoples.find(p => p.login === loginInput && p.password === passwordInput)
+        // const user = peoples.find(p => p.login === loginInput && p.password === passwordInput)
+        // if (user) {
+        //     currentPep = user
+        //     localStorage.setItem('currentPep', JSON.stringify(user))
+        //     createApplicationsPage()
+        // } 
+        // else {
+        //     alert('Пользователя с таким логином не существует!')
+        //     return
+        // }
+        const user = peoples.find(p => p.login === loginInput && p.password === passwordInput);
+        
         if (user) {
-            currentPep = user
-            localStorage.setItem('currentPep', JSON.stringify(user))
-             createApplicationsPage()
+            currentPep = user;
+            localStorage.setItem('currentPep', JSON.stringify(user));
+            
+            if (user.role === 'admin') {
+                createApplicationsPageAdmin();
+            } else {
+                createApplicationsPage();
+            }
         } else {
-            alert('Пользователя с таким логином не существует!')
-            return
+            alert('Неверный логин или пароль!');
         }
-    })
+    });
 }
 
 document.addEventListener('DOMContentLoaded', createRegApp)
