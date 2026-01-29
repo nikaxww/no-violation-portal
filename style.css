@@ -109,6 +109,9 @@ body {
     line-height: 1.4;
 }
 
+.no-applications {
+    text-align: center;
+}
 
 .header-with-back {
     display: flex;
@@ -136,4 +139,15 @@ body {
 .back-button:hover {
     background-color: transparent;
     color: #C62828;
+}
+
+.status-select {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 150px;
 }

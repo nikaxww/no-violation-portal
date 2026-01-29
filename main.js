@@ -145,6 +145,88 @@ function createApplicationsPageAdmin() {
         localStorage.removeItem('currentPep');
         createAuthApp();
     });
+
+    if (applications.length === 0) {
+        const noApps = document.createElement('p');
+        noApps.textContent = 'Нет поданных заявлений.';
+        noApps.classList.add('no-applications');
+        appsList.appendChild(noApps);
+    } else {
+        const sortedApps = [...applications].sort((a, b) =>
+            new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        sortedApps.forEach((app, index) => {
+            const user = peoples.find(p => p.login === app.userId);
+            const userFio = user ? user.fio : 'Неизвестный пользователь';
+
+            const appItem = document.createElement('div');
+            const fioElem = document.createElement('p');
+            const regNumElem = document.createElement('p');
+            const descElem = document.createElement('p');
+            const statusContainer = document.createElement('div');
+            const statusLabel = document.createElement('span');
+            const statusSelect = document.createElement('select');
+            const dateElem = document.createElement('p');
+
+            appItem.classList.add('application-item');
+            statusContainer.classList.add('status-container');
+
+            fioElem.textContent = `ФИО: ${userFio}`;
+            regNumElem.textContent = `Гос. номер: ${app.regNumber}`;
+            descElem.textContent = `Описание: ${app.description}`;
+            statusLabel.textContent = 'Статус: ';
+            statusLabel.classList.add('status-label');
+
+            const statuses = ['Новое', 'Подтверждено', 'Отклонено'];
+            statuses.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                if (app.status === status || (app.status === undefined && status === 'Новое')) {
+                    option.selected = true;
+                }
+                statusSelect.appendChild(option);
+            });
+
+            statusSelect.classList.add('status-select');
+
+            statusSelect.addEventListener('change', (e) => {
+                const newStatus = e.target.value;
+                updateApplicationStatus(index, newStatus);
+            });
+
+            const date = new Date(app.createdAt);
+            const formattedDate = date.toLocaleDateString('ru-RU', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+            const formattedTime = date.toLocaleTimeString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            dateElem.textContent = `Дата: ${formattedDate} ${formattedTime}`;
+
+            statusContainer.append(statusLabel);
+            statusContainer.append(statusSelect);
+
+            appItem.append(fioElem);
+            appItem.append(regNumElem);
+            appItem.append(descElem);
+            appItem.append(statusContainer);
+            appItem.append(dateElem);
+
+            appsList.append(appItem);
+        });
+    }
+}
+
+function updateApplicationStatus(index, newStatus) {
+    const oldStatus = applications[index].status || 'Новое';
+    applications[index].status = newStatus;  
+    saveApplications();
+    alert(`Статус заявления успешно изменен с "${oldStatus}" на "${newStatus}"`);
 }
 
 
@@ -268,9 +350,6 @@ function setupApplicationsPage(backButton, newAppButton, appsList) {
         noApps.textContent = 'У вас пока нет поданных заявлений.';
         appsList.append(noApps);
     } else {
-        const sortedApps = [...userApps].sort((a, b) =>
-            new Date(b.createdAt) - new Date(a.createdAt)
-        );
 
         userApps.forEach(app => {
             const appItem = document.createElement('div');
@@ -386,22 +465,12 @@ function createAuthApp() {
             alert('Заполните все поля!')
             return
         }
-        // const user = peoples.find(p => p.login === loginInput && p.password === passwordInput)
-        // if (user) {
-        //     currentPep = user
-        //     localStorage.setItem('currentPep', JSON.stringify(user))
-        //     createApplicationsPage()
-        // } 
-        // else {
-        //     alert('Пользователя с таким логином не существует!')
-        //     return
-        // }
         const user = peoples.find(p => p.login === loginInput && p.password === passwordInput);
-        
+
         if (user) {
             currentPep = user;
             localStorage.setItem('currentPep', JSON.stringify(user));
-            
+
             if (user.role === 'admin') {
                 createApplicationsPageAdmin();
             } else {
